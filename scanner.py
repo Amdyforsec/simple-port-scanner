@@ -1,16 +1,21 @@
 import socket
 
-print("Welcome to the port scanner")
-target = input("Enter the target IP address: ")
-port = int(input("Enter the port number to scan: "))
+def scan_ports(host, ports):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)  # Set a timeout for the connection attempt
+    result = sock.connect_ex((host, ports))
+    sock.close()
+    if result == 0:
+        return True  # Port is open
+    else:
+        return False  # Port is closed or filtered
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.settimeout(1)
+target = input("Enter the target IP :  ")
 
-result = sock.connect_ex((target, port))
-if result == 0:
-    print(f"Port {port} is open")
-else:
-    print(f"Port {port} is closed")
-
-sock.close()
+for port in range (1, 101):
+    scan_ports(target, port)
+    if scan_ports(target, port):
+        print(f"[+] Port {port} is open")
+    else:
+        print(f"[-] Port {port} is closed")
+        
