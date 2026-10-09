@@ -17,8 +17,21 @@ if len(sys.argv) != 4 :
     sys.exit(1)
 
 target = sys.argv[1]  # Get the target host from command line arguments
-start_port = int(sys.argv[2])  # Get the starting port from command line arguments
-end_port = int(sys.argv[3])  # Get the ending port from command line arguments
+
+try:
+    start_port = int(sys.argv[2])  # Get the starting port from command line arguments
+    end_port = int(sys.argv[3])  # Get the ending port from command line arguments
+except ValueError:
+    print("Error: Start port and end port must be integers.")
+    sys.exit(1)
+
+if not 1 <= start_port <= 65365:
+    print("Start port must be between 1 and 65365 ")
+    sys.exit(1)
+
+if not 1 <= end_port <= 65365:
+    print("End port must be between 1 and 65365 ")
+    sys.exit(1)
 
 for port in range(start_port, end_port + 1):
     scan_ports(target, port)
