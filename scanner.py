@@ -5,12 +5,11 @@ import sys
 def scan_ports(host, ports):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(1)  # Set a timeout for the connection attempt
-    result = sock.connect_ex((host, ports))
-    sock.close()
-    if result == 0:
-        return True  # Port is open
-    else:
-        return False  # Port is closed or filtered 
+    try:
+        result = sock.connect_ex((host, ports))
+        return result == 0  # Return True if the port is open (result is 0)
+    finally:
+            sock.close()
 
 if len(sys.argv) != 4 :
     print ("Usage: python scanner.py <target> <start_port> <end_port>")
@@ -34,8 +33,10 @@ if not 1 <= end_port <= 65365:
     sys.exit(1)
 
 for port in range(start_port, end_port + 1):
-    scan_ports(target, port)
     if scan_ports(target, port):
-        print(f"[+] Port {port} is open")
-    else:
-        print(f"[-] Port {port} is closed")
+        try:
+            service = socket.getservbyport(port)  # Attempt to get the service name for the port
+        except OSError:
+            service = "Unknown"
+        print(f"[+] Port {port} is open - Service: {service}")
+
