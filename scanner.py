@@ -11,6 +11,18 @@ def scan_ports(host, ports):
     finally:
             sock.close()
 
+def grab_banner(host, port):    
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(1)  # Set a timeout for the connection attempt
+        sock.connect((host, port))
+        banner = sock.recv(1024).decode().strip()  # Receive the banner and decode it
+        return banner or "No banner received"  # Return the banner or a message if no banner is received
+    except Exception as e:
+        return f"Error grabbing banner: {e}"
+    finally:
+        sock.close()
+
 if len(sys.argv) != 4 :
     print ("Usage: python scanner.py <target> <start_port> <end_port>")
     sys.exit(1)
@@ -34,9 +46,11 @@ if not 1 <= end_port <= 65365:
 
 for port in range(start_port, end_port + 1):
     if scan_ports(target, port):
+
         try:
             service = socket.getservbyport(port)  # Attempt to get the service name for the port
         except OSError:
             service = "Unknown"
-        print(f"[+] Port {port} is open - Service: {service}")
+        banner = grab_banner(target, port)
+        print(f"[+] Port {port} is open - Service: {service} - Banner: {banner}")
 
